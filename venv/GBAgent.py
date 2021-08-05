@@ -4,19 +4,27 @@ import copy
 class GBAgent(object):
     """
     Goal-based Agent Class
-    - class simulates a goal-based agent to solve the sudoku puzzle
+    Description: Class that simulates a goal-based agent to solve the sudoku puzzle.
+    Methods:    isGoal()
+                empty_cell()
+                potential_values()
+                row_complement()
+                column_complement()
+                grid_complement()
+                action()
+                print_board()
     """
 
     def __init__(self, initial):
         """
-
+        Defining constant values.
         :param initial: the initial state of the sudoku board.
         """
         self.initial = initial  # State of the graph when first start
         self.grid = range(0, 9)
         self.value_set = range(1, 10)  # Set of valid values on the sudoku board.
 
-    def goal_state_test(self, state):
+    def isGoal(self, state):
         """
         Function that iterates over the board and identifies if the board is solved.
             - Analyses rows, columns and 3x3 grids to determine if there are invalid entries (cell=0)
@@ -139,6 +147,10 @@ class GBAgent(object):
         valid_values = self.column_complement(valid_values, state, column)
         valid_values = self.grid_complement(valid_values, state, row, column)
 
+        print("\t| Possible Value/s for Cell: [row = " + str(row) + "][column = " + str(column) + "]" + "\t\t   |")
+        if len(valid_values) == 0:
+            print("\t| NO POTENTIAL VALUES FOUND - Backtracking to the cell \t   |\n\t| with 2 or more possible states. \t\t\t\t\t\t   |")
+
         # Generate new state for each valid value option
         for num in valid_values:
             # Create a copy of the new state.
@@ -147,7 +159,7 @@ class GBAgent(object):
             new_state[row][column] = num
             # Statement to print the cell being modified and the value being added.
             print(
-                "\t| Modifying - Row: " + str(row) + ", Column: " + str(column) + ", Value: " + str(new_state[row][column]) + "\t\t\t\t   |\t")
+                "\t| Value:" + str(new_state[row][column]) + "\t\t\t\t\t\t\t\t\t\t\t\t   |\t")
             yield new_state
 
     def print_board(self, board):

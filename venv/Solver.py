@@ -1,6 +1,7 @@
 from GBAgent import GBAgent
 import copy
 
+# Initial state of the sudoku board.
 board = [[9, 0, 0, 1, 7, 0, 4, 0, 2],
          [1, 6, 0, 0, 4, 0, 0, 9, 5],
          [0, 0, 8, 0, 0, 3, 0, 0, 0],
@@ -13,7 +14,7 @@ board = [[9, 0, 0, 1, 7, 0, 4, 0, 2],
 
 
 class Node:
-    """ Node class that creates node objects. """
+    """ Node class that creates node objects to store states in the depth-first tree. """
 
     def __init__(self, state):
         self.state = state
@@ -34,7 +35,8 @@ class Node:
 
 def DFS(problem):
     """
-    Function that performs depth-first search on the sudoku puzzle.
+    Function that performs depth-first search on the sudoku puzzle using state Nodes generated
+    from the goal-based agent.
     :param problem:
     :return:
     """
@@ -42,7 +44,7 @@ def DFS(problem):
     start = Node(problem.initial)
 
     # Test to see if the initial state is the goal state, if it is return the initial state.
-    if problem.goal_state_test(start.state):
+    if problem.isGoal(start.state):
         return start.state
 
     # Create a list and append the initial state of the sudoku grid.
@@ -54,7 +56,7 @@ def DFS(problem):
         #
         node = stack.pop()
         # If the node.state is the goal state then return the goal state
-        if problem.goal_state_test(node.state):
+        if problem.isGoal(node.state):
             return node.state
         # Add new states to the list as they are generated.
         viable_states = node.expand(problem)
@@ -63,27 +65,28 @@ def DFS(problem):
     return None
 
 
-""" 
-Function to solve the sudoku puzzle with the depth-first search.
-"""
-
 
 def solve_sudoku(board):
     """
-    Function to solve the sudoku puzzle.
-    :param board:
-    :return:
+    Function to solve the sudoku puzzle using .
+    :param board: the initial state of the sudoku board.
+    :return: the solution.
     """
 
     print("\t------------------------------------------------------------")
+    # Instantiate the Goal-base Agent (GBAgent()) with the initial board.
     problem = GBAgent(board)
+    # Find the solution using the Goal-based Agent with depth-first search.
     solution = DFS(problem)
 
+    # Print the solution if it is found.
     if solution:
         print("\t------------------------------------------------------------")
         print(
             "\t|\t\t\t\t\t\t FINAL SOLUTION" + "\t\t\t\t\t   |\t")
         problem.print_board(solution)
+    else:
+        print("No solution was found.")
 
 
 
@@ -98,11 +101,14 @@ if __name__ == "__main__":
     print("\t------------------------------------------------------------")
     print("\t|                       SUDOKU SOLVER                      |")
     print("\t|                                                          |")
-    print("\t|                                                          |")
+    print("\t| Author: Alice Schofield                                  |")
+    print("\t| Student No.: 220192911                                   |")
     print("\t------------------------------------------------------------")
     print("\t|                       SUDOKU PUZZLE                      |")
     print("\t------------------------------------------------------------")
     print("\t|                                                          |")
+    print("\t| Steps:                                                   |")
+    print("\t| 1: Create a Node                                                   |")
     new_board = copy.deepcopy(board)
     for i in range(0, 9):
         for j in range(0, 9):
@@ -112,7 +118,7 @@ if __name__ == "__main__":
     for i in range(0, 9):
         for j in range(0, 1):
             if i == 3 or i == 6:
-                print("\t|\t\t\t\t\t-----------------------")
+                print("\t|\t\t\t\t\t----------------------- \t\t\t   |")
             print("\t|\t\t\t\t\t" + " " + str(new_board[i][j]) + " " + str(new_board[i][j + 1]) + " " + str(
                 new_board[i][j + 2]) + " " + "|" + " " + str(new_board[i][j + 3]) + " " + str(
                 new_board[i][j + 4]) + " " + str(new_board[i][j + 5]) + " " + "|" + " " + str(
