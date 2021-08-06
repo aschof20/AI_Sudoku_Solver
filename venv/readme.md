@@ -35,9 +35,7 @@ Sudoku Solver uses a goal-based agent with depth-first search to identify a solu
 ## Installation
 
 ### Requirements
-* Linux
-* Python 3.6 and up
-* Program to read .csv files
+* Python 3.9.6
 
 ####To run Sudoku Solver:
 
