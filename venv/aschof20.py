@@ -14,53 +14,54 @@ board = [[9, 0, 0, 1, 7, 0, 4, 0, 2],
 
 
 class Node:
-    """ Node class that creates node objects to store states in the depth-first tree. """
-
+    """
+    Node class
+    Description: Class that creates node objects to store possible states in the
+    depth-first tree based on the current state of the board.
+    Methods: expand()
+    """
     def __init__(self, state):
         self.state = state
 
     def expand(self, problem):
         """
-        Function to retrieve actions based on the current state of the board.
+        Function to retrieve actions based on the current state of the board, create a new
+        node based on the action and append it to the state list.
         :param problem:
-        :return:
+        :return: list of possible actions based on the current state.
         """
-        # Return list of valid states
-
-        state_list = []
+        state_list = [] # Empty list to store possible states.
+        # Loop over possible actions and append valid actions to the state list.
         for state in problem.actions(self.state):
             state_list.append(Node(state))
         return state_list
 
 
-def DFS(problem):
+def depth_first_search(problem):
     """
     Function that performs depth-first search on the sudoku puzzle using state Nodes generated
     from the goal-based agent.
-    :param problem:
+    :param problem: the current state of the sudoku problem.
     :return:
     """
-    # Create a Node that stores the initial state of the sudoku grid
-    start = Node(problem.initial)
+    start = Node(problem.initial) # Create node object to store board start state.
 
-    # Test to see if the initial state is the goal state, if it is return the initial state.
+    # Test if the goal state reached with the initial sudoku board state.
     if problem.isGoal(start.state):
         return start.state
 
-    # Create a list and append the initial state of the sudoku grid.
-    stack = []
-    stack.append(start)  # Place initial node onto the stack
+    stack = [start]  # Create list and append start state node of sudoku board.
 
-    # Iterate over the stack which stores the Nodes of the different states
+    # Iterate over the state nodes.
     while stack:
-        #
+        # Pop-off the last-in node from the tree.
         node = stack.pop()
-        # If the node.state is the goal state then return the goal state
+        # Test if the node is the goal state and return the node if true.
         if problem.isGoal(node.state):
             return node.state
-        # Add new states to the list as they are generated.
+        # If goal state not reached expand the node by finding other possible actions.
         viable_states = node.expand(problem)
-        stack.extend(viable_states)  # Add viable states onto the stack
+        stack.extend(viable_states)  # Add possible states onto the stack.
         problem.print_board(node.state)
     return None
 
@@ -72,43 +73,39 @@ def solve_sudoku(board):
     :param board: the initial state of the sudoku board.
     :return: the solution.
     """
-
     print("\t------------------------------------------------------------")
     # Instantiate the Goal-base Agent (GBAgent()) with the initial board.
     problem = GBAgent(board)
     # Find the solution using the Goal-based Agent with depth-first search.
-    solution = DFS(problem)
+    solution = depth_first_search(problem)
 
     # Print the solution if it is found.
     if solution:
         print("\t------------------------------------------------------------")
         print(
-            "\t|\t\t\t\t\t\t FINAL SOLUTION" + "\t\t\t\t\t   |\t")
+            "\t|\t\t\tFINAL SOLUTION" + "\t\t\t   |\t")
         problem.print_board(solution)
     else:
         print("No solution was found.")
 
-
-
-
-
 if __name__ == "__main__":
-    # initial = GBAgent(board)
-    # initial.print_board(board)
-    # first = GBAgent(board)
-    #printing(board)
-    #input("Press Enter to continue...")
     print("\t------------------------------------------------------------")
     print("\t|                       SUDOKU SOLVER                      |")
-    print("\t|                                                          |")
+    print("\t------------------------------------------------------------")
     print("\t| Author: Alice Schofield                                  |")
     print("\t| Student No.: 220192911                                   |")
+    print("\t| Description:                                             |")
+    print("\t| The Sudoku Solver uses a goal-based agent with           |")
+    print("\t| depth-first search to identify potential cell values and |")
+    print("\t| update search tree nodes with states corresponding to    |")
+    print("\t| values identified.                                       |")
+    print("\t| Further details of the program can viewed in the readme  |")
+    print("\t| file.                                                    |")
     print("\t------------------------------------------------------------")
     print("\t|                       SUDOKU PUZZLE                      |")
     print("\t------------------------------------------------------------")
     print("\t|                                                          |")
-    print("\t| Steps:                                                   |")
-    print("\t| 1: Create a Node                                                   |")
+
     new_board = copy.deepcopy(board)
     for i in range(0, 9):
         for j in range(0, 9):
@@ -118,11 +115,11 @@ if __name__ == "__main__":
     for i in range(0, 9):
         for j in range(0, 1):
             if i == 3 or i == 6:
-                print("\t|\t\t\t\t\t----------------------- \t\t\t   |")
-            print("\t|\t\t\t\t\t" + " " + str(new_board[i][j]) + " " + str(new_board[i][j + 1]) + " " + str(
+                print("\t|\t\t----------------------- \t\t   |")
+            print("\t|\t\t" + " " + str(new_board[i][j]) + " " + str(new_board[i][j + 1]) + " " + str(
                 new_board[i][j + 2]) + " " + "|" + " " + str(new_board[i][j + 3]) + " " + str(
                 new_board[i][j + 4]) + " " + str(new_board[i][j + 5]) + " " + "|" + " " + str(
-                new_board[i][j + 6]) + " " + str(new_board[i][j + 7]) + " " + str(new_board[i][j + 8]) + "\t\t\t\t   |\t")
+                new_board[i][j + 6]) + " " + str(new_board[i][j + 7]) + " " + str(new_board[i][j + 8]) + "\t\t\t   |\t")
     print("\t|                                                          |")
     print("\t------------------------------------------------------------")
     input("\tPress Enter to Solve the Sukodu Puzzle...")

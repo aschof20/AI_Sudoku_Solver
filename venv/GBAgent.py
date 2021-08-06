@@ -14,7 +14,6 @@ class GBAgent(object):
                 action()
                 print_board()
     """
-
     def __init__(self, initial):
         """
         Defining constant values.
@@ -30,7 +29,7 @@ class GBAgent(object):
             - Analyses rows, columns and 3x3 grids to determine if there are invalid entries (cell=0)
             or if the sum of the number is not equal to 45 (i.e. sum of values 1->9).
         :param state: current state of the sudoku board.
-        :return: True - if all rows, columns and 3x3 grids are validly completed
+        :return: True  - if all rows, columns and 3x3 grids are validly completed
                  False - if there are rows, columns or 3x3 grids with entries missing or
                          the sum of the cells is invalid.
         """
@@ -72,7 +71,7 @@ class GBAgent(object):
         """
         Function that iterates over the board and identifies cells with not entries.
         :param state: list of lists that represent the current state of the sudoku grid.
-        :return: the empty cell row and column.
+        :return: the row and column indices of the empty cell.
         """
         for row in self.grid:
             for column in self.grid:
@@ -81,9 +80,9 @@ class GBAgent(object):
 
     def potential_values(self, values, invalid):
         """
-        Helper function to determine potential values of a cell.
-        Function identifies a subset of potential values
-        :param values:
+        Function that identifies a subset of potential values based on the current
+        state of the board.
+        :param values: all possible values (1-9).
         :param invalid: values that have been identified as not in the solution space.
         :return: list of potential values for a given cell.
         """
@@ -93,14 +92,13 @@ class GBAgent(object):
                 number.append(num)
         return number
 
-    """
-    Function to determine is values are valid for a row in the grid
-    Determine list of valid values of a cell based on row totals/number appearances.
-    :return list of values that don't already appear in the row.
-    """
-
-    # Filter valid values based on row
     def row_complement(self, state, row):
+        """
+        Function that determines the values in a row that have not been used.
+        :param state: current state of the sudoku board.
+        :param row: that row to be evaluated.
+        :return: list of values that are not currently present in the row.
+        """
         used_values = []  # Empty list to store potential values of cell.
         # Loop over the rows and add values already in the row to a list.
         for num in state[row]:
@@ -108,24 +106,37 @@ class GBAgent(object):
                 used_values.append(num)
         return self.potential_values(self.value_set, used_values)
 
-    # Filter valid values based on column
     def column_complement(self, values, state, column):
+        """
+        Function that determines the values for a cell in a row and a column that have not been used.
+        :param values: row values for a cell that have not been used.
+        :param state:  the current state of the sudoku board.
+        :param column: the column to be evaluated.
+        :return: potential values for a cell based on unused row and column values.
+        """
         used_values = []  # Empty list to store potential values of cell.
+        # Loop over the column and add values to the list of unused column values.
         for i in self.grid:
             if state[i][column] != 0:
                 used_values.append(state[i][column])
         return self.potential_values(values, used_values)
 
-    # Filter valid values based on quadrant
     def grid_complement(self, values, state, row, column):
-        # List of values already appearing in the 3x3 grid.
-        used_values = []
+        """
+        Function to identify potential cell values based on the associate row, column and 3x3 grid.
+        :param values: cell values that are not used in the associate row or column.
+        :param state:  current state of the sudoku board.
+        :param row:    row of the cell being evaluated.
+        :param column: column of the cell being evaluated.
+        :return: potential values of a cell based on unused row, column and grid numbers.
+        """
+        used_values = [] # List of values already appearing in the 3x3 grid.
 
         # Variables to define the location of the respective 3x3 grids.
         grid_row = int(row / 3) * 3
         grid_column = int(column / 3) * 3
 
-        # Loop over cells in the 3x3 grids and determine the values already appearing.
+        # Loop over cells in the 3x3 grids and determine the unused values.
         for rows in range(0, 3):
             for columns in range(0, 3):
                 used_values.append(state[grid_row + rows][grid_column + columns])
@@ -133,40 +144,41 @@ class GBAgent(object):
 
     def actions(self, state):
         """
-        Function to define the actions of the agents based on the current state of the
+        Function to define the actions of the agent based on the current state of the
         grid.
-        :param state:
-        :return:
+        :param state: the current state of the sudoku grid.
+        :return: a new state based on the addition of potential cell values identified in potential_values().
         """
-        # Identify the first empty cell in the grid.
-        row, column = self.empty_cell(state)
+        row, column = self.empty_cell(state) # Identify the first empty cell in the grid.
 
-        # Create a list of potential values for the cell by calling the
+        # Create a list of potential values for the cell by sucessively calling the
         # row, column and grid complement functions.
         valid_values = self.row_complement(state, row)
         valid_values = self.column_complement(valid_values, state, column)
         valid_values = self.grid_complement(valid_values, state, row, column)
 
-        print("\t| Possible Value/s for Cell: [row = " + str(row) + "][column = " + str(column) + "]" + "\t\t   |")
-        if len(valid_values) == 0:
-            print("\t| NO POTENTIAL VALUES FOUND - Backtracking to the cell \t   |\n\t| with 2 or more possible states. \t\t\t\t\t\t   |")
+        # Print the cells being evaluated
+        print("\t| Possible Value/s for Cell: [row = " + str(row) + "][column = " + str(column) + "]" + "  \t   |")
 
-        # Generate new state for each valid value option
+        # If not potential values found backtrack to previous state where greater than one potential value identified.
+        if len(valid_values) == 0:
+            print("\t| NO POTENTIAL VALUES FOUND - Backtracking to the cell \t   |\n\t| with 2 or more possible states. \t\t\t   |")
+
+        # Loop over the list of potential values for a cell and generate new state for each.
         for num in valid_values:
-            # Create a copy of the new state.
+            # Create new state by copying the current state.
             new_state = copy.deepcopy(state)
-            # Assign the number to the new state.
+            # Assign a potential cell value to the new state.
             new_state[row][column] = num
             # Statement to print the cell being modified and the value being added.
             print(
-                "\t| Value:" + str(new_state[row][column]) + "\t\t\t\t\t\t\t\t\t\t\t\t   |\t")
+                "\t| Value:" + str(new_state[row][column]) + "\t\t\t\t\t\t   |\t")
             yield new_state
 
     def print_board(self, board):
         """
         Function to print the sukodu board to the console.
-        :param board: the sudoku board to be printed
-        :return:
+        :param board: the sudoku board state to be printed.
         """
         new_board = board
         for i in range(0, 9):
@@ -179,11 +191,11 @@ class GBAgent(object):
         for i in range(0, 9):
             for j in range(0, 1):
                 if i == 3 or i == 6:
-                    print("\t|\t\t\t\t\t-----------------------\t\t\t\t   |")
-                print("\t|\t\t\t\t\t" + " " + str(new_board[i][j]) + " " + str(new_board[i][j + 1]) + " " + str(
+                    print("\t|\t\t   -----------------------     \t\t   |")
+                print("\t|\t\t   " + " " + str(new_board[i][j]) + " " + str(new_board[i][j + 1]) + " " + str(
                     new_board[i][j + 2]) + " " + "|" + " " + str(new_board[i][j + 3]) + " " + str(
                     new_board[i][j + 4]) + " " + str(new_board[i][j + 5]) + " " + "|" + " " + str(
                     new_board[i][j + 6]) + " " + str(new_board[i][j + 7]) + " " + str(
-                    new_board[i][j + 8]) + "\t\t\t\t   |\t")
+                    new_board[i][j + 8]) + "\t\t   |\t")
         print("\t|                                                          |")
         print("\t------------------------------------------------------------")
